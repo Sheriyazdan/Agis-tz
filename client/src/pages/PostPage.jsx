@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { api } from "../utils";
+import SweetAlert from "react-swal";
 
 const EditModal = ({ saveItem, closeModal, textInput, itemIndex }) => {
   const [changeInput, setChangeInput] = useState("");
@@ -39,9 +40,13 @@ function PostPage() {
   const [openModal, setOpenModal] = useState(false);
   const [textInput, setTextInput] = useState("");
   const [itemIndex, setItemIndex] = useState(null);
-  const [checkSaveItem, setCheckSaveItem] = useState('')
+  const [checkSaveItem, setCheckSaveItem] = useState("");
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alerText, setAlerText] = useState("")
   const saveItem = (text) => {
-    setCheckSaveItem(text)
+    setCheckSaveItem(text);
+    setOpenAlert(true);
+    setAlerText("Изменено")
   };
   const closeModal = () => {
     setOpenModal(false);
@@ -59,17 +64,30 @@ function PostPage() {
     };
     api
       .post("/posts/createpost", data)
-      .then((res) => setMessages([...messages, res.data.newPost]))
+      .then((res) => {
+        setMessages([...messages, res.data.newPost]);
+        setOpenAlert(true);
+        setAlerText("Добавлено в БД")
+      })
       .catch((err) => console.log(err));
+    setText("");
   };
 
   const deleteItem = (index) => {
     api
       .delete(`/posts/${index}`, index)
-      .then((res) =>
-        document.querySelectorAll(".comments .comment-item")[index].style.display = "none"
-      )
+      .then((res) => {
+        document.querySelectorAll(".comments .comment-item")[
+          index
+        ].style.display = "none";
+        setOpenAlert(true);
+        setAlerText("Удалено из БД")
+      })
       .catch((err) => console.log(err));
+  };
+
+  const clickToAlert = () => {
+    setOpenAlert(false);
   };
 
   useEffect(() => {
@@ -79,11 +97,24 @@ function PostPage() {
     };
     fetchData();
   }, [checkSaveItem]);
+
+
   return (
     <div className="posts">
       <div className="container">
         <form className="form" onSubmit={(e) => e.preventDefault()}>
           <h1>Все коментарий</h1>
+          {openAlert && (
+            <SweetAlert
+              isOpen={true}
+              type="success"
+              confirmButtonText="Ok"
+              title="Успешно"
+              text={alerText}
+              callback={() => clickToAlert()}
+            />
+          )}
+
           <div className="comments">
             {messages.length ? (
               <>
@@ -114,7 +145,9 @@ function PostPage() {
                 })}
               </>
             ) : (
-              <><img src="images/loader.png" alt="" /></>
+              <>
+                <img src="images/loader.png" alt="" />
+              </>
             )}
           </div>
           <input

@@ -9,7 +9,7 @@ export const Header = () => {
         <a href="https://hh.kz/resume/8181c35dff0983aa2c0039ed1f346f5372695a">
           <div className={`logo`}>
             <img src="images/logo-me.jpeg" alt="" />
-            <div className={`logo-text logo_text`} href="">
+            <div className={`logo-text logo_text`} >
               Sheriyazdan
             </div>
           </div>
